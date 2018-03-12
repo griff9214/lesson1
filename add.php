@@ -7,12 +7,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if ($title == '' || $content == '') {
         $msg = 'Заполните все поля';
-    } elseif (file_exists("data/" . $title)) {
-        $msg = "Тайтл уже занят!";
     } elseif (!validate_title($title)) {
         $msg = "Тайтл должен содержать только цифры, латиницу, тире и символы подчеркивания!";
-    }
-    else {
+    } elseif (file_exists("data/" . $title)) {
+        $msg = "Тайтл уже занят!";
+    } else {
         file_put_contents("data/" . $title, $content);
         header("Location: index.php");
         exit();
