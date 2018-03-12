@@ -1,5 +1,6 @@
 <?php
 error_reporting(E_ALL);
+include_once("functions.php");
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $title = trim($_POST['title']);
     $content = trim($_POST['content']);
@@ -8,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $msg = 'Заполните все поля';
     } elseif (file_exists("data/" . $title)) {
         $msg = "Тайтл уже занят!";
-    } elseif (!preg_match("#[a-zA-Z0-9\-_]{" . mb_strlen($title) . "}#is", $title)) {
+    } elseif (!validate_title($title)) {
         $msg = "Тайтл должен содержать только цифры, латиницу, тире и символы подчеркивания!";
     }
     else {
