@@ -1,22 +1,25 @@
 <?php
-
-if (count($_POST) > 0) {
+error_reporting(E_ALL);
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $title = trim($_POST['title']);
     $content = trim($_POST['content']);
 
     if ($title == '' || $content == '') {
         $msg = 'Заполните все поля';
-    } /*
-			проверка корректности title
-			проверка уникальности title
-		*/
+    } elseif (file_exists("data/" . $title)) {
+        $msg = "Тайтл уже занят!";
+    } elseif (!preg_match("#[a-zA-Z0-9\-_]{" . mb_strlen($title) . "}#is", $title)) {
+        $msg = "Тайтл должен содержать только цифры, латиницу, тире и символы подчеркивания!";
+    }
     else {
-        // сохранить статью в файл
+        file_put_contents("data/" . $title, $content);
         header("Location: index.php");
         exit();
     }
 } else {
     $msg = '';
+    $title = '';
+    $content = '';
 }
 
 ?>
@@ -28,16 +31,28 @@ if (count($_POST) > 0) {
               content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
         <title>Document</title>
+        <style>
+            input, textarea {
+                display: block;
+                margin-bottom: 10px;
+            }
+
+            .error {
+                display: block;
+                color: red;
+                margin-bottom: 10px;
+            }
+        </style>
     </head>
     <body>
-    <form method="post">
+    <form action="" method="post">
         Название<br>
-        <input type="text" name="title">
+        <input type="text" name="title" value="<?= $title ?>">
         Контент<br>
-        <textarea name="content"></textarea>
+        <textarea name="content"><?= $content ?></textarea>
         <input type="submit" value="Добавить">
     </form>
     </body>
     </html>
 
-<?php echo $msg; ?>
+<?php echo "<div class='error'>$msg</div>"; ?>
