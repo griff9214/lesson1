@@ -1,6 +1,6 @@
 <?php
 
-	if(count($_POST) > 0){
+	if(count($_POST) > 1){
 		$title = trim($_POST['title']);
 		$content = trim($_POST['content']);
 		
