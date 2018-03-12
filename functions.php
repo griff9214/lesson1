@@ -8,5 +8,5 @@
 
 function validate_title($title)
 {
-    return preg_match("#[a-zA-Z0-9\-_]{" . mb_strlen($title) . "}#is", $title));
+    return preg_match("#[a-zA-Z0-9\-_]{" . mb_strlen($title) . "}#is", $title);
 }
