@@ -1,6 +1,16 @@
 <?php
 error_reporting(E_ALL);
-include_once("functions.php");
+
+require_once("functions.php");
+require_once("config.php");
+
+session_start();
+
+if (!(isset($_SESSION['auth']) || (($_COOKIE['login'] ?? null) === hash('sha256', $login) && ($_COOKIE['password'] ?? null) === hash('sha256', $password)))) {
+    header("Location: login.php?from=" . basename($_SERVER['SCRIPT_NAME']));
+    exit ();
+}
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $title = trim($_POST['title']);
     $content = trim($_POST['content']);

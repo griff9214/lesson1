@@ -1,5 +1,5 @@
 <?php
-	
+session_start();
 	$list = scandir('data');
 	
 	foreach($list as $fname){
