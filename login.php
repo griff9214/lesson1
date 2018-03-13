@@ -6,8 +6,14 @@
  * Time: 16:30
  */
 session_start();
-
 require_once('config.php');
+
+if (isset($_SESSION['auth'])) {
+    unset($_SESSION['auth']);
+} elseif (isset($_COOKIE['login']) || isset($_COOKIE['password'])) {
+    setcookie('login', '', time() - 100, '/');
+    setcookie('password', '', time() - 100, '/');
+}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && count($_POST) > 0) {
     $user_login = trim($_POST['login']);
@@ -18,17 +24,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && count($_POST) > 0) {
             setcookie('login', hash('sha256', $user_login), time() + 3600 * 24, '/');
             setcookie('password', hash('sha256', $user_password), time() + 3600 * 24, '/');
         }
-        if (isset($_GET['from'])) {
-            header("Location:" . $_GET["from"]);
+        if (isset($_SESSION['from'])) {
+            header("Location:" . $_SESSION['from']);
+            unset($_SESSION['from']);
         } else {
             header("Location: index.php");
         }
     }
 }
 
-if (isset($_SESSION['auth']) || ($_COOKIE['login'] === hash('sha256', $login) && $_COOKIE['password'] === hash('sha256', $password))) {
-    exit ('Нахуя пришел? ты уже авторизован!');
-}
+
 ?>
 <!doctype html>
 <html lang="en">

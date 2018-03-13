@@ -6,8 +6,9 @@ require_once("config.php");
 
 session_start();
 
-if (!(isset($_SESSION['auth']) || (($_COOKIE['login'] ?? null) === hash('sha256', $login) && ($_COOKIE['password'] ?? null) === hash('sha256', $password)))) {
-    header("Location: login.php?from=" . basename($_SERVER['SCRIPT_NAME']));
+if (!((isset($_SESSION['auth']) && $_SESSION['auth'] == true) || (($_COOKIE['login'] ?? null) === hash('sha256', $login) && ($_COOKIE['password'] ?? null) === hash('sha256', $password)))) {
+    header("Location: login.php");
+    $_SESSION['from'] = $_SERVER['REQUEST_URI'];
     exit ();
 }
 

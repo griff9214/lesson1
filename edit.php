@@ -6,15 +6,28 @@
  * Time: 10:37
  */
 error_reporting(E_ALL);
-include_once("functions.php");
+require_once("functions.php");
+require_once("config.php");
+
+session_start();
+
+if (!((isset($_SESSION['auth']) && $_SESSION['auth'] == true) || (($_COOKIE['login'] ?? null) === hash('sha256', $login) && ($_COOKIE['password'] ?? null) === hash('sha256', $password)))) {
+    header("Location: login.php");
+    $_SESSION['from'] = $_SERVER['REQUEST_URI'];
+    exit ();
+}
 
 $title = $_GET['fname'] ?? null;
+
 
 if ($title == null) {
     $msg = "Ошибка! Не передано название статьи!";
     $title = '';
     $content = '';
-
+} elseif (!validate_title($title)) {
+    $msg = "Ошибка 404. Нет такой статьи!";
+    $title = '';
+    $content = '';
 } elseif (!file_exists('data/' . $title)) {
     $msg = 'Ошибка 404. Нет такой статьи!';
     $title = '';
@@ -22,32 +35,31 @@ if ($title == null) {
 } else {
     $content = file_get_contents('data/' . $title);
     $msg = "";
-}
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $new_title = trim($_POST['title']);
-    $new_content = trim($_POST['content']);
+    if ($_SERVER['REQUEST_METHOD'] == 'POST' && count($_POST) > 0) {
+        $new_title = trim($_POST['title']);
+        $new_content = trim($_POST['content']);
 
-    if ($new_title === $title && $new_content === $content) {
-        $msg = "Вы не внесли изменений!";
-    } elseif ($new_title == '' || $new_content == '') {
-        $msg = 'Заполните все поля';
-    } elseif (!validate_title($new_title)) {
-        $msg = "Тайтл должен содержать только цифры, латиницу, тире и символы подчеркивания!";
-    } elseif ($new_title != $title && file_exists("data/" . $new_title)) {
-        $msg = "Тайтл уже занят!";
-        $title = $new_title;
-        $content = $new_content;
-    } else {
-        if ($title != $new_title) {
-            unlink("data/" . $title);
+        if ($new_title === $title && $new_content === $content) {
+            $msg = "Вы не внесли изменений!";
+        } elseif ($new_title == '' || $new_content == '') {
+            $msg = 'Заполните все поля';
+        } elseif (!validate_title($new_title)) {
+            $msg = "Тайтл должен содержать только цифры, латиницу, тире и символы подчеркивания!";
+        } elseif ($new_title != $title && file_exists("data/" . $new_title)) {
+            $msg = "Тайтл уже занят!";
+            $title = $new_title;
+            $content = $new_content;
+        } else {
+            if ($title != $new_title) {
+                unlink("data/" . $title);
+            }
+            file_put_contents("data/" . $new_title, $new_content);
+            header("Location: index.php");
+            exit();
         }
-        file_put_contents("data/" . $new_title, $new_content);
-        header("Location: index.php");
-        exit();
     }
 }
-
 ?>
     <!doctype html>
     <html lang="ru">
