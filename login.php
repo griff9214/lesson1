@@ -5,8 +5,18 @@
  * Date: 13.03.2018
  * Time: 16:30
  */
+error_reporting(E_ALL);
 session_start();
-require_once('config.php');
+//include_once ('config.php');
+$dsn = 'mysql:dbname=blog;host=127.0.0.1';
+$user = 'root';
+$password = '';
+
+try {
+    $db = new PDO($dsn, $user, $password);
+} catch (PDOException $e) {
+    echo 'Подключение не удалось: ' . $e->getMessage();
+}
 
 if (isset($_SESSION['auth'])) {
     unset($_SESSION['auth']);
@@ -18,17 +28,29 @@ if (isset($_SESSION['auth'])) {
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && count($_POST) > 0) {
     $user_login = trim($_POST['login']);
     $user_password = trim($_POST['password']);
-    if ($user_login === $login && $user_password === $password) {
-        $_SESSION['auth'] = true;
-        if (isset($_POST['remember'])) {
-            setcookie('login', hash('sha256', $user_login), time() + 3600 * 24, '/');
-            setcookie('password', hash('sha256', $user_password), time() + 3600 * 24, '/');
+
+    $res = $db->query("SELECT `user_id`, `user_password` FROM `blog_users` WHERE `user_login` = '{$user_login}'");
+    if ($res->rowCount() == 0) {
+        $error = "Такого пользователя не существует";
+    } else {
+        foreach ($res as $user) {
+            $password = $user['user_password'];
+            $user_id = $user['user_id'];
         }
-        if (isset($_SESSION['from'])) {
-            header("Location:" . $_SESSION['from']);
-            unset($_SESSION['from']);
+        if ($user_password === $password) {
+            $_SESSION['auth'] = true;
+            if (isset($_POST['remember'])) {
+                setcookie('login', hash('sha256', $user_id), time() + 3600 * 24, '/');
+                setcookie('password', hash('sha256', $user_password), time() + 3600 * 24, '/');
+            }
+            if (isset($_SESSION['from'])) {
+                header("Location:" . $_SESSION['from']);
+                unset($_SESSION['from']);
+            } else {
+                header("Location: index.php");
+            }
         } else {
-            header("Location: index.php");
+            $error = "Вы ввели неверный пароль!";
         }
     }
 }
@@ -62,6 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && count($_POST) > 0) {
 
 </head>
 <body>
+<div class="error"><? echo isset($error) ? $error : ""; ?></div>
 <form action="" method="post">
     <input type="text" name="login" placeholder="Ваш логин">
     <input type="password" name="password" placeholder="Ваш пароль">

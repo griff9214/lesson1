@@ -1,14 +1,18 @@
 <?php
+include_once("config.php");
+$post_id = $_GET['id'] ?? null;
 
-$fname = $_GET['fname'] ?? null;
-
-if ($fname === null) {
+if ($post_id === null) {
     echo 'Ошибка 404, не передано название';
-} elseif (!file_exists('data/' . $fname)) {
-    echo 'Ошибка 404. Нет такой статьи!';
 } else {
-    $content = file_get_contents('data/' . $fname);
+    $res = $db->query("SELECT `post_content` FROM `blog_posts` WHERE `post_id` = $post_id");
+    if ($res->rowCount() == 0) {
+        echo "Нет такой статьи!";
+    } else {
+        while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
+            echo nl2br($row['post_content']);
+        }
+        echo "<br><br><a href='edit.php?id=" . $post_id . "'>Edit article</a>";
+    }
 
-    echo nl2br($content);
-    echo "<br><br><a href='edit.php?fname=" . $fname . "'>Edit article</a>";
 }

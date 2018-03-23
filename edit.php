@@ -11,29 +11,31 @@ require_once("config.php");
 
 session_start();
 
-if (!is_authorised($login, $password)) {
-    header("Location: login.php");
-    $_SESSION['from'] = $_SERVER['REQUEST_URI'];
-    exit ();
-}
+//if (!is_authorised($login, $password)) {
+//    header("Location: login.php");
+//    $_SESSION['from'] = $_SERVER['REQUEST_URI'];
+//    exit ();
+//}
 
-$title = $_GET['fname'] ?? null;
+$post_id = $_GET['id'] ?? null;
 
 
-if ($title == null) {
-    $msg = "Ошибка! Не передано название статьи!";
+if ($post_id == null) {
+    $msg = "Ошибка! Не передан ID статьи!";
     $title = '';
     $content = '';
-} elseif (!validate_title($title)) {
-    $msg = "Ошибка 404. Нет такой статьи!";
-    $title = '';
-    $content = '';
-} elseif (!file_exists('data/' . $title)) {
+} elseif (0 == ($res = $db->query("SELECT `post_title`, `post_content` FROM `blog_posts` WHERE `post_id` = '$post_id'")->rowCount())) {
+    var_dump($res);
+    foreach ($res as $row) {
+        var_dump($row);
+    }
     $msg = 'Ошибка 404. Нет такой статьи!';
     $title = '';
     $content = '';
 } else {
-    $content = file_get_contents('data/' . $title);
+    foreach ($res as $row) {
+        echo $row['post_title'];
+    }
     $msg = "";
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && count($_POST) > 0) {

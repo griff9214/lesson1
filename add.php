@@ -1,20 +1,21 @@
 <?php
 error_reporting(E_ALL);
 
-require_once("functions.php");
-require_once("config.php");
+include_once("functions.php");
+include_once("config.php");
 
 session_start();
 
-if (!is_authorised($login, $password)) {
-    header("Location: login.php");
-    $_SESSION['from'] = $_SERVER['REQUEST_URI'];
-    exit ();
-}
+//if (!is_authorised($login, $password)) {
+//    header("Location: login.php");
+//    $_SESSION['from'] = $_SERVER['REQUEST_URI'];
+//    exit ();
+//}
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $title = trim($_POST['title']);
     $content = trim($_POST['content']);
+    $query = "INSERT INTO `blog_posts` (`post_id`, `post_title`, `post_content`, `post_author_id`) VALUES (NULL, '{$title}', '{$content}', '1');";
 
     if ($title == '' || $content == '') {
         $msg = 'Заполните все поля';
@@ -23,7 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } elseif (file_exists("data/" . $title)) {
         $msg = "Тайтл уже занят!";
     } else {
-        file_put_contents("data/" . $title, $content);
+        //file_put_contents("data/" . $title, $content);
+        $db->query($query);
         header("Location: index.php");
         exit();
     }
