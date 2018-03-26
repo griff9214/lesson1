@@ -24,44 +24,44 @@ if ($post_id == null) {
     $msg = "Ошибка! Не передан ID статьи!";
     $title = '';
     $content = '';
-} elseif (0 == ($res = $db->query("SELECT `post_title`, `post_content` FROM `blog_posts` WHERE `post_id` = '$post_id'")->rowCount())) {
-    var_dump($res);
-    foreach ($res as $row) {
-        var_dump($row);
-    }
-    $msg = 'Ошибка 404. Нет такой статьи!';
-    $title = '';
-    $content = '';
 } else {
-    foreach ($res as $row) {
-        echo $row['post_title'];
-    }
-    $msg = "";
-
-    if ($_SERVER['REQUEST_METHOD'] == 'POST' && count($_POST) > 0) {
-        $new_title = trim($_POST['title']);
-        $new_content = trim($_POST['content']);
-
-        if ($new_title === $title && $new_content === $content) {
-            $msg = "Вы не внесли изменений!";
-        } elseif ($new_title == '' || $new_content == '') {
-            $msg = 'Заполните все поля';
-        } elseif (!validate_title($new_title)) {
-            $msg = "Тайтл должен содержать только цифры, латиницу, тире и символы подчеркивания!";
-        } elseif ($new_title != $title && file_exists("data/" . $new_title)) {
-            $msg = "Тайтл уже занят!";
-            $title = $new_title;
-            $content = $new_content;
-        } else {
-            if ($title != $new_title) {
-                unlink("data/" . $title);
-            }
-            file_put_contents("data/" . $new_title, $new_content);
-            header("Location: index.php");
-            exit();
+    $res = $db->query("SELECT `post_title`, `post_content` FROM `blog_posts` WHERE `post_id` = '$post_id'");
+    if ($res->rowCount() == 0) {
+        $msg = 'Ошибка 404. Нет такой статьи!';
+        $title = '';
+        $content = '';
+    } else {
+        foreach ($res as $row) {
+            $title = $row['post_title'];
+            $content = $row['post_content'];
         }
+        $msg = "";
     }
 }
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && count($_POST) > 0) {
+    $new_title = trim($_POST['title']);
+    $new_content = trim($_POST['content']);
+
+    if ($new_title === $title && $new_content === $content) {
+        $msg = "Вы не внесли изменений!";
+    } elseif ($new_title == '' || $new_content == '') {
+        $msg = 'Заполните все поля';
+    } elseif (!validate_title($new_title)) {
+        $msg = "Тайтл должен содержать только цифры, латиницу, тире и символы подчеркивания!";
+    }
+//    elseif ($new_title != $title && file_exists("data/" . $new_title)) {
+//        $msg = "Тайтл уже занят!";
+//        $title = $new_title;
+//        $content = $new_content;
+//    }
+    else {
+        $db->query("UPDATE `blog_posts` SET `post_title`= '$new_title',`post_content`='$new_content' WHERE `post_id` = $post_id");
+        $content = $new_content;
+        $title = $new_title;
+    }
+}
+
+
 ?>
     <!doctype html>
     <html lang="ru">
