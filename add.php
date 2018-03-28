@@ -15,7 +15,7 @@ session_start();
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $title = trim($_POST['title']);
     $content = trim($_POST['content']);
-    $query = "INSERT INTO `blog_posts` (`post_id`, `post_title`, `post_content`, `post_author_id`) VALUES (NULL, '{$title}', '{$content}', '1');";
+    $sql = "INSERT INTO `blog_posts` (`post_id`, `post_title`, `post_content`, `post_author_id`) VALUES (NULL, '{$title}', '{$content}', '1');";
 
     if ($title == '' || $content == '') {
         $msg = 'Заполните все поля';
@@ -24,8 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } elseif (file_exists("data/" . $title)) {
         $msg = "Тайтл уже занят!";
     } else {
-        //file_put_contents("data/" . $title, $content);
-        $db->query($query);
+        $query = $db->prepare(sql);
+        $query->execute();
         header("Location: index.php");
         exit();
     }

@@ -14,5 +14,5 @@ foreach ($res as $str) {
     echo $str[1] . "\t";
     echo $str[2] . "\t";
     echo $str[3] . "<br>";
-    
+
 }

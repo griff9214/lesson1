@@ -55,7 +55,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && count($_POST) > 0) {
 //        $content = $new_content;
 //    }
     else {
-        $db->query("UPDATE `blog_posts` SET `post_title`= '$new_title',`post_content`='$new_content' WHERE `post_id` = $post_id");
+        $sql = "UPDATE `blog_posts` SET `post_title`= '$new_title',`post_content`='$new_content' WHERE `post_id` = $post_id";
+        $query = $db->prepare($sql);
+        $query->execute();
         $content = $new_content;
         $title = $new_title;
     }

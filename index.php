@@ -1,8 +1,12 @@
 <?php
 session_start();
 include_once 'config.php';
-$res = $db->query("SELECT `post_id`, `post_title` FROM `blog_posts` WHERE 1", PDO::FETCH_ASSOC);
-foreach ($res as $post) {
+include_once 'functions.php';
+$sql = ("SELECT `post_id`, `post_title` FROM `blog_posts` WHERE 1");
+//$query = $db->prepare("SELECT `post_id`, `post_title` FROM `blog_posts` WHERE 1");
+//$query->execute();
+$res = $db_query($sql);
+while ($post = $res->fetch(PDO::FETCH_ASSOC)) {
     echo "<a href=post.php?id={$post['post_id']}>{$post['post_title']}</a><br>";
 }
 ?>
