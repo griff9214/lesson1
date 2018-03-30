@@ -9,9 +9,9 @@ if ($post_id === null) {
     if ($res->rowCount() == 0) {
         echo "Нет такой статьи!";
     } else {
-        while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
-            echo nl2br($row['post_content']);
-        }
+        $row = $res->fetch(PDO::FETCH_ASSOC);
+        echo nl2br($row['post_content']);
+
         echo "<br><br><a href='edit.php?id=" . $post_id . "'>Edit article</a>";
     }
 

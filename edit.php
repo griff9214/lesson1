@@ -6,8 +6,8 @@
  * Time: 10:37
  */
 error_reporting(E_ALL);
-require_once("functions.php");
 require_once("config.php");
+require_once("functions.php");
 
 session_start();
 
@@ -20,21 +20,20 @@ session_start();
 $post_id = $_GET['id'] ?? null;
 
 
-if ($post_id == null) {
+if ($post_id == null || !is_int($post_id)) {
     $msg = "Ошибка! Не передан ID статьи!";
     $title = '';
     $content = '';
 } else {
-    $res = $db->query("SELECT `post_title`, `post_content` FROM `blog_posts` WHERE `post_id` = '$post_id'");
+    $res = $db_query("SELECT `post_title`, `post_content` FROM `blog_posts` WHERE `post_id` = '$post_id'");
     if ($res->rowCount() == 0) {
         $msg = 'Ошибка 404. Нет такой статьи!';
         $title = '';
         $content = '';
     } else {
-        foreach ($res as $row) {
-            $title = $row['post_title'];
-            $content = $row['post_content'];
-        }
+        $post = $res->fetch();
+        $title = $post['post_title'];
+        $content = $post['post_content'];
         $msg = "";
     }
 }
@@ -55,9 +54,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && count($_POST) > 0) {
 //        $content = $new_content;
 //    }
     else {
-        $sql = "UPDATE `blog_posts` SET `post_title`= '$new_title',`post_content`='$new_content' WHERE `post_id` = $post_id";
-        $query = $db->prepare($sql);
-        $query->execute();
+        $sql = "UPDATE `blog_posts` SET `post_title`= :new_title,`post_content`= :new_content WHERE `post_id` = :post_id";
+        $db_query($sql, [":new_title" => $new_title, ":new_content" => $new_content, ":post_id" => $post_id]);
         $content = $new_content;
         $title = $new_title;
     }

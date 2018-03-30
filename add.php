@@ -1,8 +1,8 @@
 <?php
 error_reporting(E_ALL);
 
-include_once("functions.php");
 include_once("config.php");
+include_once("functions.php");
 
 session_start();
 
@@ -15,17 +15,14 @@ session_start();
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $title = trim($_POST['title']);
     $content = trim($_POST['content']);
-    $sql = "INSERT INTO `blog_posts` (`post_id`, `post_title`, `post_content`, `post_author_id`) VALUES (NULL, '{$title}', '{$content}', '1');";
+    $sql = "INSERT INTO `blog_posts` (`post_id`, `post_title`, `post_content`, `post_author_id`) VALUES (NULL, :title, :content, '1');";
 
     if ($title == '' || $content == '') {
         $msg = 'Заполните все поля';
     } elseif (!validate_title($title)) {
         $msg = "Тайтл должен содержать только цифры, латиницу, тире и символы подчеркивания!";
-    } elseif (file_exists("data/" . $title)) {
-        $msg = "Тайтл уже занят!";
     } else {
-        $query = $db->prepare(sql);
-        $query->execute();
+        $db_query($sql, [':title' => $title, ':content' => $content]);
         header("Location: index.php");
         exit();
     }

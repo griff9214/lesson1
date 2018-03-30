@@ -15,8 +15,9 @@ function is_authorised($login, $password){
     }
     return true;
 }
+
 $db_query = function($sql, $params = []) use ($db) {
     $query = $db->prepare($sql);
-    $query->execute();
+    $query->execute($params);
     return $query;
 };
